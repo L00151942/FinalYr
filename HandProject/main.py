@@ -52,6 +52,7 @@ while True:
             # Set variable to keep landmarks positions (x and y)
             handLandmarks = []
 
+            # This section was aided by: https://www.geekering.com/categories/computer-vision/marcellacavalcanti/hand-tracking-and-finger-counting-in-python-with-mediapipe/
             # Fill list with x and y positions of each landmark
         for landmarks in hand_landmarks.landmark:
             handLandmarks.append([landmarks.x, landmarks.y])
