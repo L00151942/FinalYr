@@ -23,7 +23,8 @@ mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1, min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
-cap = cv2.VideoCapture(0) # or cap = cv2.VideoCapture('video.mp4')
+cap = cv2.VideoCapture(0)
+# or cap = cv2.VideoCapture('video.mp4')
 
 while True:
     # Read a frame from the video
@@ -52,7 +53,8 @@ while True:
             # Set variable to keep landmarks positions (x and y)
             handLandmarks = []
 
-            # This section was aided by: https://www.geekering.com/categories/computer-vision/marcellacavalcanti/hand-tracking-and-finger-counting-in-python-with-mediapipe/
+            # This section was aided by:
+            # https://www.geekering.com/categories/computer-vision/marcellacavalcanti/hand-tracking-and-finger-counting-in-python-with-mediapipe/
             # Fill list with x and y positions of each landmark
         for landmarks in hand_landmarks.landmark:
             handLandmarks.append([landmarks.x, landmarks.y])
@@ -100,6 +102,9 @@ while True:
     # VolBar outline
     cv2.rectangle(frame, (605, 60), (620, 420), (0, 0, 0), 2)
 
+    # Set the Pc's volume where the coordinated equal the MinMax volume range
+    pcVolume = np.interp(y, [0, 100], [-60, maxV])
+
 # Print hand landmarks as radio volume.
     if results.multi_hand_landmarks:
         if fingerCount >= 3:
@@ -108,44 +113,46 @@ while True:
                 handPosition = hand_landmarks.landmark[9].y
                 y = 100 - ((handPosition * 135) - 18.5)
 
-                # Set the Pc's volume where the coordinated equal the MinMax volume range
-                pcVolume = np.interp(y, [0, 100], [minV, maxV])
-                volume.SetMasterVolumeLevel(pcVolume, None)
-
                 # volBar Height and Text
                 if y >= 100:
                     radioVolumeTxt = cv2.putText(frame, f"{100}%", (575, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
                     volBar = cv2.rectangle(frame, (618, 418), (607, 62), (0, 255, 0), -1)
+                    volume.SetMasterVolumeLevel(maxV, None)
                 elif y <= 0:
                     radioVolumeTxt = cv2.putText(frame, f"{0}%", (590, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                     volBar = cv2.rectangle(frame, (618, 418), (618, 418), (0, 0, 0), -1)
-                    volume.GetMute()
+                    volume.SetMasterVolumeLevel(minV, None)
                 else:
                     radioVolumeTxt = cv2.putText(frame, f"{int(y)}%", (590, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
                     volBar = cv2.rectangle(frame, (607, 402 - int(y * 3.4)), (618, 418), (0, 255, 0), -1)
+                    volume.SetMasterVolumeLevel(pcVolume, None)
         else:
             # volBar Height and Text
             if y >= 100:
-                radioVolumeTxt = cv2.putText(frame, f"{100}%", (575, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0),
-                                             2)
+                radioVolumeTxt = cv2.putText(frame, f"{100}%", (575, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
                 volBar = cv2.rectangle(frame, (618, 418), (607, 62), (0, 255, 0), -1)
+                volume.SetMasterVolumeLevel(maxV, None)
             elif y <= 0:
                 radioVolumeTxt = cv2.putText(frame, f"{0}%", (590, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                 volBar = cv2.rectangle(frame, (618, 418), (618, 418), (0, 0, 0), -1)
-                volume.GetMute()
+                volume.SetMasterVolumeLevel(minV, None)
             else:
                 radioVolumeTxt = cv2.putText(frame, f"{int(y)}%", (590, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.7,(255, 255, 255), 2)
                 volBar = cv2.rectangle(frame, (607, 402 - int(y * 3.4)), (618, 418), (0, 255, 0), -1)
+                volume.SetMasterVolumeLevel(pcVolume, None)
     else:
         if y >= 100:
             radioVolumeTxt = cv2.putText(frame, f"{100}%", (575, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
             volBar = cv2.rectangle(frame, (618, 418), (607, 62), (0, 255, 0), -1)
+            volume.SetMasterVolumeLevel(maxV, None)
         elif y <= 0:
             radioVolumeTxt = cv2.putText(frame, f"{0}%", (590, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             volBar = cv2.rectangle(frame, (618, 418), (618, 418), (0, 0, 0), -1)
+            volume.SetMasterVolumeLevel(minV, None)
         else:
             radioVolumeTxt = cv2.putText(frame, f"{int(y)}%", (590, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
             volBar = cv2.rectangle(frame, (607, 402 - int(y * 3.4)), (618, 418), (0, 255, 0), -1)
+            volume.SetMasterVolumeLevel(pcVolume, None)
 
     # Show the image
     cv2.imshow('Vehicle Control System', frame)
@@ -156,5 +163,5 @@ while True:
 
 cap.release()
 
-#references
+# All References
 # https://www.geekering.com/categories/computer-vision/marcellacavalcanti/hand-tracking-and-finger-counting-in-python-with-mediapipe/
